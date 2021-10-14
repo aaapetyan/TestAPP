@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, abort, reqparse
 from flask_sqlalchemy import SQLAlchemy
+from functools import wraps
 
 app = Flask(__name__)
 # defining the dialect and path to the database
@@ -47,6 +48,24 @@ parser.add_argument('position', type=str, required=True)
 parser.add_argument('legal_name', type=str, required=True)
 parser.add_argument('department', type=str, required=True)
 
+input_full = {'last_name': str, 'first_name': str, 'father_name': str, 'birth_year': int,
+              'id': int, 'salary': float, 'position': str, 'legal_name': str, 'department': str}
+
+
+def validate(types):
+    def decorator(method):
+        @wraps(method)
+        def wrapper(self):
+            args = parser.parse_args()
+            for param in args:
+                if type(args[param]) is types[param]:
+                    pass
+                else:
+                    return f'Error! {param} should be {types[param]} not {type(args[param])}'
+            return method(self)
+        return wrapper
+    return decorator
+
 
 class EmployeesRecordList(Resource):
     # to get the full list of employees
@@ -55,6 +74,7 @@ class EmployeesRecordList(Resource):
         return [EmployeesRecord.serialize(record) for record in records]
 
     # to add a new employee to the list
+    @validate(input_full)
     def post(self):
         args = parser.parse_args()
         employee_record = EmployeesRecord(last_name=args['last_name'],
