@@ -37,19 +37,27 @@ class EmployeesRecord(db.Model):
         }
 
 
+# full list of arguments
 parser = reqparse.RequestParser()
-parser.add_argument('last_name', type=str, required=True, help='last_name is a required parameter!')
-parser.add_argument('first_name', type=str, required=True)
-parser.add_argument('father_name', type=str, required=True)
-parser.add_argument('birth_year', type=int, required=True)
-parser.add_argument('id', type=int, required=True)
-parser.add_argument('salary', type=float, required=True)
-parser.add_argument('position', type=str, required=True)
-parser.add_argument('legal_name', type=str, required=True)
-parser.add_argument('department', type=str, required=True)
+parser.add_argument('last_name', required=True)
+parser.add_argument('first_name', required=True)
+parser.add_argument('father_name', required=True)
+parser.add_argument('birth_year', required=True)
+parser.add_argument('id', required=True)
+parser.add_argument('salary', required=True)
+parser.add_argument('position', required=True)
+parser.add_argument('legal_name', required=True)
+parser.add_argument('department', required=True)
+
+# arguments for search by name
+search_parser = reqparse.RequestParser()
+search_parser.add_argument('last_name', required=True)
+search_parser.add_argument('first_name', required=True)
+search_parser.add_argument('father_name', required=True)
 
 input_full = {'last_name': str, 'first_name': str, 'father_name': str, 'birth_year': int,
               'id': int, 'salary': float, 'position': str, 'legal_name': str, 'department': str}
+input_search = {'last_name': str, 'first_name': str, 'father_name': str}
 
 
 def validate(types):
@@ -127,10 +135,10 @@ class Employee(Resource):
 class SearchEmployee(Resource):
     # to search for an employee by name
     def get(self):
-        last = request.args.get('last')
-        first = request.args.get('first')
-        father = request.args.get('father')
-        records = EmployeesRecord.query.filter_by(last_name=last, first_name=first, father_name=father).all()
+        args = search_parser.parse_args()
+        records = EmployeesRecord.query.filter_by(last_name=args['last_name'],
+                                                  first_name=args['first_name'],
+                                                  father_name=args['father_name'])
         return [EmployeesRecord.serialize(record) for record in records]
 
 
