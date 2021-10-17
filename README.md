@@ -28,23 +28,31 @@ Response:
 ### Add an employee
 `POST /api`
 
-	curl -X POST -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100, "position": "intern", "legal_name": "OOO", "department": "backend"}' http://127.0.0.1:5000/api
+	curl -X POST -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100.0, "position": "intern", "legal_name": "OOO", "department": "backend"}' http://127.0.0.1:5000/api
 	
 Response:
 	
 	{"result": {"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100.0, "position": "intern", "legal_name": "OOO", "department": "backend"}}
 	
-Adding an employee with already existing id:
+Trying to add a record with already existing id:
 
-	curl -X POST -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 2, "salary": 100, "position": "intern", "legal_name": "OOO", "department": "backend"}' http://127.0.0.1:5000/api
+	curl -X POST -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 2, "salary": 100.0, "position": "intern", "legal_name": "OOO", "department": "backend"}' http://127.0.0.1:5000/api
 	
 Response:
 
 	{"error": "no exception for 'Record with id=2 already exists'"}
 	
-Missing data (no "department"):
+Trying to add a record with wrong data ("birth_year" is str, not int):
 
-	curl -X POST -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100, "position": "intern", "legal_name": "OOO"}' http://127.0.0.1:5000/api
+	curl -X POST -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": "some year", "id": 23, "salary": 100.0, "position": "intern", "legal_name": "OOO"}' http://127.0.0.1:5000/api
+	
+Response:
+
+	{"error": "birth_year should be <class 'int'> not <class 'str'>"}
+	
+Trying to add a record with missing data (no "department"):
+
+	curl -X POST -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100.0, "position": "intern", "legal_name": "OOO"}' http://127.0.0.1:5000/api
 
 Response:
 
@@ -55,7 +63,7 @@ Response:
 
 `PUT /api/record/{id}`
 
-	curl -X PUT -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100, "position": "junior", "legal_name": "OOO", "department": "backend"}' http://127.0.0.1:5000/api/record/23
+	curl -X PUT -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100.0, "position": "junior", "legal_name": "OOO", "department": "backend"}' http://127.0.0.1:5000/api/record/23
 	
 Response:
 
@@ -63,7 +71,7 @@ Response:
 
 Trying to update non-existent record:
 
-	curl -X PUT -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100, "position": "junior", "legal_name": "OOO", "department": "backend"}' http://127.0.0.1:5000/api/record/100
+	curl -X PUT -H 'Content-Type: application/json' -d '{"last_name": "Apetyan", "first_name": "Arina", "father_name": "Arturovna", "birth_year": 1994, "id": 23, "salary": 100.0, "position": "junior", "legal_name": "OOO", "department": "backend"}' http://127.0.0.1:5000/api/record/100
 
 Response:
 
