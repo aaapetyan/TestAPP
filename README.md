@@ -48,7 +48,7 @@ Missing data (no "department"):
 
 Response:
 
-	{"error": "400 Bad Request: The browser (or proxy) sent a request that this server could not understand."}
+	{"error": "department is missing"}
 	
 	
 ### Update the record for the employee
@@ -129,4 +129,5 @@ Search by name ("last_name" is missing):
 	
 Response:
 
-	{"error": "400 Bad Request: The browser (or proxy) sent a request that this server could not understand."}
+	{"error": "last_name is missing"}
+
