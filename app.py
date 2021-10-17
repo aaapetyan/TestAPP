@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, abort, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
@@ -58,6 +58,7 @@ search_parser.add_argument('father_name', required=True)
 # correct input data types for a new record
 input_types = {'last_name': str, 'first_name': str, 'father_name': str, 'birth_year': int,
                'id': int, 'salary': float, 'position': str, 'legal_name': str, 'department': str}
+search_types = {'last_name': str, 'first_name': str, 'father_name': str}
 
 
 # decorator for validation of input data
@@ -65,13 +66,16 @@ def validate(types):
     def decorator(method):
         @wraps(method)
         def wrapper(self):
-            args = parser.parse_args()
             # checking if the arguments collected from the request are of the correct type
-            for param in args:
-                if type(args[param]) is not types[param]:
-                    return f'Error! {param} should be {types[param]} not {type(args[param])}'
+            for param in types:
+                if param not in request.json:
+                    return {'error': f'{param} is missing'}
+                if types[param] != type(request.json[param]):
+                    return {'error': f'{param} should be {types[param]} not {type(request.json[param])}'}
             return method(self)
+
         return wrapper
+
     return decorator
 
 
@@ -80,10 +84,10 @@ def result_or_error(method):
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         try:
-            response = method(self, *args, **kwargs)
-            return {'result': response}
+            return {'result': method(self, *args, **kwargs)}
         except Exception as e:
             return {'error': str(e)}
+
     return wrapper
 
 
@@ -95,8 +99,8 @@ class EmployeesRecordList(Resource):
         return [EmployeesRecord.serialize(record) for record in records]
 
     # to add a new employee to the list
-    @result_or_error
     @validate(input_types)
+    @result_or_error
     def post(self):
         # collecting data from the request
         args = parser.parse_args()
@@ -123,16 +127,17 @@ class Employee(Resource):
     @result_or_error
     def get(self, emp_id):
         return EmployeesRecord.serialize(
-            EmployeesRecord.query.filter_by(id=emp_id)
-            .first_or_404(description=f'Record with id={emp_id} is not available'))
+            EmployeesRecord.query.filter_by(id=emp_id).first_or_404
+            (description=f'Record with id={emp_id} is not available'))
 
     # to update the information for the existing employee
+    @validate(input_types)
     @result_or_error
     def put(self, emp_id):
         # collecting data from the request
         args = parser.parse_args()
         # finding the record we are going to modify
-        record = EmployeesRecord.query.filter_by(id=emp_id)\
+        record = EmployeesRecord.query.filter_by(id=emp_id) \
             .first_or_404(description=f'Record with id={emp_id} is not available')
         record.last_name = args['last_name']
         record.first_name = args['first_name']
@@ -149,7 +154,7 @@ class Employee(Resource):
     # to delete an employee from the list
     @result_or_error
     def delete(self, emp_id):
-        record = EmployeesRecord.query.filter_by(id=emp_id)\
+        record = EmployeesRecord.query.filter_by(id=emp_id) \
             .first_or_404(description=f'Record with id={emp_id} is not available')
         db.session.delete(record)
         db.session.commit()
@@ -158,6 +163,7 @@ class Employee(Resource):
 
 class SearchEmployee(Resource):
     # to search for an employee by name
+    @validate(search_types)
     @result_or_error
     def get(self):
         # collecting search data from the request
@@ -168,9 +174,9 @@ class SearchEmployee(Resource):
         return [EmployeesRecord.serialize(record) for record in records]
 
 
-api.add_resource(EmployeesRecordList, '/recordsAll', '/', methods=['GET', 'POST'])
-api.add_resource(Employee, '/record/<int:emp_id>', methods=['GET', 'PUT', 'DELETE'])
-api.add_resource(SearchEmployee, '/search', methods=['GET'])
+api.add_resource(EmployeesRecordList, '/api/recordsAll', '/api', methods=['GET', 'POST'])
+api.add_resource(Employee, '/api/record/<int:emp_id>', methods=['GET', 'PUT', 'DELETE'])
+api.add_resource(SearchEmployee, '/api/search', methods=['GET'])
 
 if __name__ == '__main__':
     app.run(debug=True)
