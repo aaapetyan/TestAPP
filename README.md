@@ -1,5 +1,5 @@
 # TestAPP
-This projects shows the implementation of API web service. 
+This project shows the implementation of the API web service. 
 The API is written using Flask-RESTful, the database is built using SQLAlchemy.
 
 ## Running
