@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restful import Resource, Api, abort, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
