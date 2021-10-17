@@ -1,7 +1,11 @@
 from app import db
 from app import EmployeesRecord
 
+# drop the table if already exists
+# the default bind (SQLALCHEMY_DATABASE_URI) is named None:
+db.drop_all(bind=None)
 db.create_all()
+
 first_record = EmployeesRecord(last_name='Ivanov', first_name='Ivan', father_name='Ivanovich',
                                birth_year=1985, id=1, salary=100.0, position='junior',
                                legal_name='OOO TestApp', department='frontend')
