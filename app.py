@@ -6,6 +6,7 @@ from functools import wraps
 app = Flask(__name__)
 # defining the dialect and path to the database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///employees.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 api = Api(app)
 
