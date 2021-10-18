@@ -5,7 +5,7 @@ The API is written using Flask-RESTful, the database is built using SQLAlchemy.
 ## Running
 
 ### Install necessary packages
-	pip install requirements.txt
+	pip install -r requirements.txt
 	
 ### Create the database
 	python db_creation.py
